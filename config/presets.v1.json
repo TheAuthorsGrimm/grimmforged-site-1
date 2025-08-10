@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "industries": [
+    "Information Technology",
+    "Healthcare / Medical",
+    "Trades & Labour"
+  ],
+  "presets": {
+    "Information Technology": [
+      [
+        "ITIL",
+        4
+      ],
+      [
+        "Incident Management",
+        4
+      ],
+      [
+        "PowerShell",
+        4
+      ],
+      [
+        "Azure",
+        4
+      ],
+      [
+        "M365",
+        4
+      ],
+      [
+        "APIs",
+        4
+      ],
+      [
+        "SQL",
+        3
+      ],
+      [
+        "Governance",
+        3
+      ]
+    ],
+    "Healthcare / Medical": [
+      [
+        "HIPAA",
+        5
+      ],
+      [
+        "EHR/EMR",
+        4
+      ],
+      [
+        "HL7/FHIR",
+        4
+      ],
+      [
+        "Clinical Workflows",
+        4
+      ]
+    ],
+    "Trades & Labour": [
+      [
+        "OSHA",
+        5
+      ],
+      [
+        "Job Site Safety",
+        5
+      ],
+      [
+        "CMMS",
+        3
+      ],
+      [
+        "Maintenance",
+        3
+      ]
+    ]
+  },
+  "styles": {
+    "theme-modern": {
+      "affinity": [
+        "automation",
+        "api",
+        "sql",
+        "powershell",
+        "azure",
+        "m365",
+        "itsm"
+      ],
+      "guidance": [
+        "Clean, ATS-safe.",
+        "Front-load keywords.",
+        "Quantify outcomes."
+      ]
+    },
+    "theme-classic": {
+      "affinity": [
+        "leadership",
+        "governance",
+        "audit",
+        "stakeholder"
+      ],
+      "guidance": [
+        "Great for long tenure.",
+        "Focus on readability."
+      ]
+    },
+    "theme-compact": {
+      "affinity": [
+        "automation",
+        "sre",
+        "devops",
+        "sql",
+        "api"
+      ],
+      "guidance": [
+        "High density 1-page.",
+        "Trim to metrics."
+      ]
+    },
+    "theme-twocol": {
+      "affinity": [
+        "skills",
+        "cert",
+        "tooling",
+        "m365",
+        "azure"
+      ],
+      "guidance": [
+        "Skills in side column.",
+        "1\u20133 bullets/role."
+      ]
+    }
+  }
+}

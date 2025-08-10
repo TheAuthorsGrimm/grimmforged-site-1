@@ -1,0 +1,18 @@
+:root{--accent:#d4af37;--bg1:#0f1013;--bg2:#0b0c10;--ink:#f0efe9;--muted:#c9c6bb;--line:#2c2f36;--radius:16px}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+.container{max-width:1240px;margin:28px auto;padding:16px}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:8px;position:sticky;top:0}
+.brand{display:flex;align-items:center;gap:8px}.logo{width:36px;height:36px;background:url('assets/logo.svg') center/cover no-repeat;border-radius:50%}
+.btn{border:1px solid #454952;background:#23262d;color:var(--ink);border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;gap:8px;align-items:center}
+.btn.primary{background:linear-gradient(180deg,#ffe3a3,var(--accent));color:#111;border-color:#e2c35a}
+.card{border:1px solid #363a42;border-radius:16px;padding:16px;background:linear-gradient(180deg,#20232a,#13161b)}
+.grid{display:grid;gap:14px}.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:repeat(3,1fr)}
+.preview{border:1px solid #343842;background:#0a0b0d;border-radius:12px;overflow:hidden}
+.page{margin:0 auto;background:#fff;color:#222;width:8.5in;min-height:11in;box-shadow:0 10px 30px rgba(0,0,0,.45);padding:.6in;position:relative}
+.cv-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:2px solid #222;padding-bottom:10px;margin-bottom:10px}
+.cv-name{font-size:28px;font-weight:700}.cv-meta{font-size:12px;color:#333}
+.cv-section{margin:14px 0}.cv-section h3{margin:0 0 4px;font-size:13px;letter-spacing:.6px;text-transform:uppercase}
+.cv-bullets{margin:0;padding-left:18px}.cv-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.theme-twocol .cv-body{display:grid;grid-template-columns:1.2fr .9fr;gap:10px}
+.is-hidden{display:none !important}.pill{display:inline-flex;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid #4a4c51;background:#1a1c20}
+.footer{padding:24px 0;border-top:1px solid #2c2f36;opacity:.9;font-size:14px;text-align:center}

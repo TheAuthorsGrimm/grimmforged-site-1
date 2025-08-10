@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GrimmForged Resume Builder — V6</title>
+<link rel="stylesheet" href="styles/grimmforged.css">
+<style id="gf-print-only">
+@page { size: Letter portrait; margin: 0.5in; }
+@media print {
+  body.print-only * { display: none !important; visibility: hidden !important; }
+  body.print-only #page { display: block !important; }
+  body.print-only #page * { display: revert !important; visibility: visible !important; }
+  @supports not (display: revert) {
+    body.print-only #page * { display: initial !important; }
+  }
+  body.print-only { background:#fff !important; }
+  body.print-only #page {
+    box-shadow:none !important;
+    background:#fff !important;
+    margin:0 auto !important;
+    width:8.5in !important;
+    min-height:11in !important;
+    padding:.6in !important;
+  }
+}
+</style>
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" as="script">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/docx/8.1.3/docx.umd.min.js" as="script">
+</head>
+<body>
+  <div class="container">
+    <div class="nav"><a class="btn" href="index.html">Home</a><div><a class="btn" href="howto.html">How it works</a> <a class="btn primary" href="builder.html">Open Builder</a></div></div>
+
+    <main class="grid">
+      <section id="s1" class="card">
+        <h2>Welcome</h2>
+        <div><button class="btn primary" onclick="goTo(2)">Start</button></div>
+      </section>
+
+      <section id="s2" class="card is-hidden">
+        <h2>Industry & Presets</h2>
+        <div class="grid grid-2">
+          <div>
+            <label>Config URL</label>
+            <input id="cfgUrl" value="config/presets.v1.json"/>
+            <div style="margin-top:6px"><button class="btn" id="reloadCfg">Reload</button></div>
+            <h3>Industry</h3>
+            <div id="industryGrid" class="grid"></div>
+          </div>
+          <div>
+            <label>Paste job posting (optional)</label>
+            <textarea id="jobText" placeholder="Paste the description here…"></textarea>
+            <div><button class="btn" id="scanJob">Scan job post → keywords</button></div>
+          </div>
+        </div>
+        <div style="margin-top:10px"><button class="btn" onclick="goTo(1)">Back</button> <button class="btn primary" id="toCriteria" onclick="goTo(3)">Next</button></div>
+      </section>
+
+      <section id="s3" class="card is-hidden">
+        <h2>Hiring Criteria</h2>
+        <div><h3>Extracted</h3><div id="jobKeywords" class="grid"></div></div>
+        <div class="grid grid-2">
+          <div>
+            <h3>Criteria list</h3>
+            <div id="criteriaList" class="grid"></div>
+            <div style="margin-top:8px">
+              <input id="critName" placeholder="Add criterion (e.g., ITSM, APIs, PowerShell)"/>
+              <button class="btn" id="addCrit">Add</button>
+              <button class="btn" id="replacePresets">Replace with presets</button>
+            </div>
+          </div>
+          <div>
+            <h3>Selected keywords (weighted)</h3>
+            <div id="keywordSelected" class="grid"></div>
+          </div>
+        </div>
+        <div style="margin-top:10px"><button class="btn" onclick="goTo(2)">Back</button> <button class="btn primary" id="toStyles" onclick="goTo(4)">Suggest styles</button></div>
+      </section>
+
+      <section id="s4" class="card is-hidden">
+        <h2>Suggested Styles</h2>
+        <div id="styleSummary" class="small" style="margin-bottom:8px"></div>
+        <div id="stylePreviews" class="grid grid-3"></div>
+        <div><button class="btn" onclick="goTo(3)">Back</button> <button class="btn primary" id="chooseStyle" onclick="goTo(5)">Use selected style</button></div>
+      </section>
+
+      <section id="s5" class="card is-hidden">
+        <h2>Guidance for <span id="styleText" class="small">—</span></h2>
+        <div id="guidance" class="grid"></div>
+        <div><button class="btn" onclick="goTo(4)">Back</button> <button class="btn primary" onclick="goTo(6)">Next</button></div>
+      </section>
+
+      <section id="s6" class="card is-hidden">
+        <h2>Your Info</h2>
+        <div class="grid grid-2">
+          <div><label>Full name<input id="fullName"/></label></div>
+          <div><label>Target title(s)<input id="titleLine" placeholder="e.g., IT Application Specialist"/></label></div>
+          <div><label>Contact line<input id="contactLine" placeholder="City • Phone • Email • LinkedIn"/></label></div>
+          <div><label>Website<input id="website" placeholder="https://example.com"/></label></div>
+          <div class="grid" style="grid-column:1/-1">
+            <label>Summary<textarea id="summaryText" placeholder="3–4 line impact summary…"></textarea></label>
+            <label>Skills (comma-separated)<textarea id="skillsText" placeholder="ITSM, PowerShell, SQL, APIs"></textarea></label>
+          </div>
+        </div>
+        <div><button class="btn" onclick="goTo(5)">Back</button> <button class="btn primary" id="toCanvas" onclick="goTo(7)">Build on canvas</button></div>
+      </section>
+
+      <section id="s7" class="card is-hidden">
+        <div class="grid grid-2" style="align-items:start">
+          <aside>
+            <h3>Theme Styler</h3>
+            <div class="grid grid-2">
+              <div><label>Accent<input type="color" id="thAccent" value="#d4af37"></label></div>
+              <div><label>Background<input type="color" id="thBg1" value="#0f1013"></label></div>
+              <div><label>Card<input type="color" id="thCardA" value="#20232a"></label></div>
+              <div><label>Radius<input type="range" id="thRadius" min="0" max="28" value="16"></label></div>
+              <div><label>Density<input type="range" id="thDensity" min="0.85" max="1.25" step="0.01" value="1"></label></div>
+            </div>
+            <div style="margin-top:8px">
+              <button class="btn" id="saveTheme">Save theme</button>
+              <button class="btn" id="resetTheme">Reset</button>
+              <button class="btn" id="printBtn">Print / Save PDF</button>
+              <button class="btn" id="pdfBtn">Download PDF</button>
+              <button class="btn" id="docxBtn">Download .DOCX</button>
+            </div>
+          </aside>
+          <section id="resumeCanvas" class="theme-modern">
+            <div class="page" id="page">
+              <div class="cv-header">
+                <div><div id="cvName" class="cv-name" contenteditable="true">Your Name</div><div id="cvTitle" class="cv-meta" contenteditable="true">IT Application Specialist • Automation & Data Visualization</div></div>
+                <div id="cvMeta" class="cv-meta" contenteditable="true">City, ST • (555) 555-5555 • you@email.com • linkedin.com/in/you</div>
+              </div>
+              <div class="cv-body">
+                <div class="cv-section" data-key="summary"><h3>Summary</h3><div id="cvSummary" contenteditable="true">Impact-led IT specialist who blends tech and design to demystify data.</div></div>
+                <div class="cv-section" data-key="experience"><h3>Experience</h3><div id="cvExp"><div class="job" contenteditable="true"><strong>IT Application Specialist — Company</strong> | 2021–Present<br/>• Cut ticket backlog 28% by automating routing and triage.<br/>• Built PowerShell/REST scripts to sync data; reduced manual work 6 hrs/week.</div></div></div>
+                <div class="cv-section" data-key="education"><h3>Education</h3><div id="cvEdu" contenteditable="true">Diploma / Degree — Institution, Year</div></div>
+                <div class="cv-section" data-key="skills"><h3>Core Skills</h3><div id="cvSkills" class="cv-two" contenteditable="true"><ul class="cv-bullets"><li>ITSM, Incident Mgmt</li><li>PowerShell, SQL</li><li>Azure & M365</li></ul><ul class="cv-bullets"><li>Process Automation</li><li>Stakeholder Comms</li><li>Governance & Security</li></ul></div></div>
+                <div class="cv-section" data-key="certs"><h3>Certifications</h3><div id="cvCerts" contenteditable="true">ITIL • AZ-900 • MS-900</div></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer">© GrimmForged</div>
+  </div>
+
+<script>
+const qs=(s,r=document)=>r.querySelector(s), qsa=(s,r=document)=>[...r.querySelectorAll(s)];
+let CFG=null, S={step:1,industry:"Information Technology",criteria:[],style:"theme-modern"};
+function showStep(n){ qsa('main > section').forEach((sec,i)=> sec.classList.toggle('is-hidden',(i+1)!==n)); }
+function goTo(n){ S.step=n; showStep(n); window.scrollTo({top:0,behavior:'smooth'}); }
+async function loadConfig(url){ try{ const r=await fetch(url,{cache:'no-cache'}); const j=await r.json(); return j; }catch(e){ return null; } }
+function renderIndustries(){ const grid=qs('#industryGrid'); grid.innerHTML=''; (CFG?.industries||[]).forEach(name=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=name; if(name===S.industry) b.classList.add('primary'); b.onclick=()=>{ S.industry=name; qsa('#industryGrid .btn').forEach(x=>x.classList.remove('primary')); b.classList.add('primary'); }; grid.appendChild(b); }); }
+qs('#reloadCfg').onclick=async()=>{ CFG=await loadConfig(qs('#cfgUrl').value); renderIndustries(); };
+
+qs('#scanJob').onclick=()=>{ const t=qs('#jobText').value.toLowerCase().replace(/[^a-z0-9\s\+\-#\.]/g,' '); const words=t.split(/\s+/).filter(w=>w.length>2); const f={}; words.forEach(w=>f[w]=(f[w]||0)+1); const top=Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,30).map(x=>x[0]); const wrap=qs('#jobKeywords'); wrap.innerHTML=''; top.forEach(k=>{ const s=document.createElement('span'); s.className='pill'; s.textContent=k; s.onclick=()=>addCriterion(k,3); wrap.appendChild(s); }); };
+function addCriterion(name,weight=3){ if(!name) return; const hit=S.criteria.find(c=>c.name.toLowerCase()===name.toLowerCase()); if(hit){ hit.weight=Math.max(hit.weight,weight); renderCriteria(); renderSelected(); return; } S.criteria.push({name,weight}); renderCriteria(); renderSelected(); }
+function renderCriteria(){ const root=qs('#criteriaList'); root.innerHTML=''; S.criteria.forEach((c,i)=>{ const row=document.createElement('div'); row.className='grid'; row.style.gridTemplateColumns='1fr 160px 50px'; const n=document.createElement('input'); n.value=c.name; n.oninput=e=>{ S.criteria[i].name=e.target.value; renderSelected(); }; const w=document.createElement('input'); w.type='range'; w.min=1; w.max=5; w.value=c.weight; const b=document.createElement('span'); b.textContent=c.weight; w.oninput=e=>{{S.criteria[i].weight=+e.target.value; b.textContent=e.target.value; renderSelected();}}; const del=document.createElement('button'); del.className='btn'; del.textContent='×'; del.onclick=()=>{{S.criteria.splice(i,1); renderCriteria(); renderSelected();}}; row.append(n,w,b,del); root.appendChild(row); }); }
+function weighted(){ return S.criteria.filter(c=>c.name.trim()).sort((a,b)=>b.weight-a.weight); }
+function renderSelected(){ const wrap=qs('#keywordSelected'); wrap.innerHTML=''; weighted().forEach(c=>{ const s=document.createElement('span'); s.className='pill'; s.textContent=`${c.name} • ${c.weight}`; wrap.appendChild(s); }); }
+qs('#replacePresets').onclick=()=>{ const pack=(CFG?.presets?.[S.industry]||[]); S.criteria=pack.map(([n,w])=>({name:n,weight:w})); renderCriteria(); renderSelected(); };
+qs('#addCrit').onclick=()=>{ const v=qs('#critName').value.trim(); if(!v) return; addCriterion(v,3); qs('#critName').value=''; };
+qs('#toCriteria').addEventListener('click', ()=>{ if(S.criteria.length===0){ const pack=(CFG?.presets?.[S.industry]||[]); S.criteria=pack.slice(0,8).map(([n,w])=>({name:n,weight:w})); renderCriteria(); renderSelected(); } });
+
+function scoreStyle(t){ const tags=(CFG?.styles?.[t]?.affinity||[]); return weighted().reduce((s,c)=> s + (tags.some(x=>c.name.toLowerCase().includes(x)) ? c.weight : 0), 0); }
+function synth(){ const name=qs('#fullName').value.trim()||'Your Name'; const title=qs('#titleLine').value.trim()||'Target Title'; const meta=qs('#contactLine').value.trim()||'City, ST • (555) 555-5555 • you@email.com'; const summary=qs('#summaryText').value.trim()||'Impact-led professional with measurable results.'; const skills=weighted().map(c=>c.name); return {name,title,meta,summary,skills}; }
+qs('#toStyles').addEventListener('click', ()=>{ const c=qs('#stylePreviews'); c.innerHTML=''; const d=synth(); const themes=Object.keys(CFG?.styles||{}).map(t=>({t,score:scoreStyle(t)})).sort((a,b)=>b.score-a.score); qs('#styleSummary').textContent='Ranked by weighted criteria'; themes.forEach(({t,score},i)=>{ const card=document.createElement('div'); card.className='card'; const head=document.createElement('div'); head.innerHTML=`<strong>${t.replace('theme-','')}</strong> — score ${score}`; const pick=document.createElement('label'); pick.style.display='block'; pick.innerHTML=`<input type="radio" name="stylePick" value="${t}" ${i===0?'checked':''}/> Use this`; const ex=document.createElement('div'); ex.className='page'; ex.style.width='100%'; ex.style.minHeight='unset'; ex.style.padding='24px'; ex.innerHTML=`<div style="font-weight:700">${d.name}</div><div style="font-size:12px;color:#444">${d.title}</div><div style="margin-top:6px">${d.summary}</div>`; card.append(head, pick, ex); c.appendChild(card); }); });
+qs('#chooseStyle').addEventListener('click', ()=>{ const sel=qs('input[name="stylePick"]:checked'); if(!sel){ alert('Pick a style'); return; } S.style=sel.value; const g=qs('#guidance'); g.innerHTML=''; (CFG?.styles?.[S.style]?.guidance||[]).forEach(t=>{ const d=document.createElement('div'); d.textContent='• '+t; g.appendChild(d); }); });
+qs('#toCanvas').addEventListener('click', ()=>{ populate(); qs('#resumeCanvas').className=S.style; });
+function populate(){ const d=synth(); qs('#cvName').textContent=d.name; qs('#cvTitle').textContent=d.title; qs('#cvMeta').textContent=d.meta; qs('#cvSummary').textContent=d.summary; const half=Math.ceil(d.skills.length/2)||1; const c1=d.skills.slice(0,half), c2=d.skills.slice(half); qs('#cvSkills').innerHTML=`<ul class='cv-bullets'>${c1.map(x=>'<li>'+x+'</li>').join('')}</ul><ul class='cv-bullets'>${c2.map(x=>'<li>'+x+'</li>').join('')}</ul>`; }
+
+let libsLoaded=false; async function ensureLibs(){ if(libsLoaded) return; await new Promise(r=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; s.onload=r; document.body.appendChild(s); }); await new Promise(r=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/docx/8.1.3/docx.umd.min.js'; s.onload=r; document.body.appendChild(s); }); libsLoaded=true; }
+
+document.getElementById('printBtn').onclick = () => {
+  document.body.classList.add('print-only');
+  setTimeout(() => { window.print(); }, 25);
+  const cleanup = () => { document.body.classList.remove('print-only'); window.onafterprint = null; };
+  if ('onafterprint' in window) { window.onafterprint = cleanup; } else { setTimeout(cleanup, 500); }
+};
+
+document.getElementById('pdfBtn').onclick=async()=>{
+  await ensureLibs(); const el=qs('#page');
+  const opt={ margin:[0.5,0.5,0.5,0.5], filename:'resume.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'in',format:'letter',orientation:'portrait'} };
+  window.html2pdf().set(opt).from(el).save();
+};
+
+document.getElementById('docxBtn').onclick=async()=>{
+  await ensureLibs(); const D=window.docx;
+  const paras=(t)=> t.split(/\n+/).map(s=>s.trim()).filter(Boolean).map(x=> new D.Paragraph({ text:x }));
+  const doc=new D.Document({ sections:[{children:[
+    new D.Paragraph({ text: qs('#cvName').textContent.trim(), heading: D.HeadingLevel.TITLE }),
+    new D.Paragraph({ text: qs('#cvTitle').textContent.trim() }),
+    new D.Paragraph({ text: qs('#cvMeta').textContent.trim() }),
+    new D.Paragraph({ text:'SUMMARY' }), ...paras(qs('#cvSummary').innerText),
+    new D.Paragraph({ text:'CORE SKILLS' }), ...paras(qs('#cvSkills').innerText.replace(/\s+/g,' '))
+  ]}]});
+  const blob=await D.Packer.toBlob(doc); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='resume.docx'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+
+window.addEventListener('load', async()=>{ CFG=await loadConfig(qs('#cfgUrl').value); renderIndustries(); });
+</script>
+</body>
+</html>
